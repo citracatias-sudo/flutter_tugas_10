@@ -13,7 +13,6 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
-  
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +139,7 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a password';
                   }
-                  if (value.length < 6) {
+                  if (value.length < 9) {
                     return 'Password must be at least 6 characters';
                   }
                   return null;
