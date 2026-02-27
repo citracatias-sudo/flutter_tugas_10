@@ -44,7 +44,7 @@ class _SplashScreenDay16State extends State<SplashScreenDay16> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets\images\217d361a958205cd29c944f29d18ce3f.jpg"),
+            Icon(Icons.woman),
             // Logo/Icon
             Container(
               width: 120,
