@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tugas_10/login_page.dart';
+import 'package:flutter_tugas_10/view/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: LoginPageDay15(),
+      home: SplashScreenDay16(),
     );
   }
 }

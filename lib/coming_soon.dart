@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ComingSoonDay15 extends StatelessWidget {
-  ComingSoonDay15({super.key});
+  const ComingSoonDay15({super.key});
 
   @override
   Widget build(BuildContext context) {

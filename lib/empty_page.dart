@@ -5,7 +5,7 @@ class EmptyPage15 extends StatelessWidget {
   final String name;
   final String city;
 
-  EmptyPage15({super.key, required this.name, required this.city});
+  const EmptyPage15({super.key, required this.name, required this.city});
 
   @override
   Widget build(BuildContext context) {

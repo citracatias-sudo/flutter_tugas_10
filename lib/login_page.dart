@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
+import 'package:flutter_tugas_10/day_16/database/sqflite.dart';
 import 'package:flutter_tugas_10/empty_page.dart';
 
 class LoginPageDay15 extends StatefulWidget {
@@ -10,7 +12,8 @@ class LoginPageDay15 extends StatefulWidget {
 
 class _LoginPageDay15State extends State<LoginPageDay15> {
   final _formKey = GlobalKey<FormState>();
-
+  final TextEditingController emailcontroller = TextEditingController();
+  final TextEditingController passwordcontroller = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
 
@@ -102,6 +105,7 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
               SizedBox(height: 15),
 
               TextFormField(
+                controller: emailcontroller,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.email),
@@ -127,6 +131,7 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
               SizedBox(height: 15),
 
               TextFormField(
+                controller: passwordcontroller,
                 obscureText: true,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.lock),
@@ -160,6 +165,16 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
                   ),
 
                   onPressed: () {
+                    DBHelper.registerUser(
+                      UserModel(
+                        email: emailcontroller.text,
+                        password: passwordcontroller.text,
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Registration success")),
+                    );
+                    
                     if (_formKey.currentState?.validate() ?? false) {
                       showDialog(
                         context: context,
