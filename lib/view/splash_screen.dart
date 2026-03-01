@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tugas_10/login_page.dart';
 import 'package:flutter_tugas_10/day_16/database/preference.dart';
+import 'package:flutter_tugas_10/view/login_day_16.dart';
 
 class SplashScreenDay16 extends StatefulWidget {
   const SplashScreenDay16({super.key});
@@ -26,12 +26,12 @@ class _SplashScreenDay16State extends State<SplashScreenDay16> {
     if (isLoggedIn == true) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPageDay15()),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPageDay15()),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     }
   }

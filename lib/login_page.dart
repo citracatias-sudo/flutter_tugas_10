@@ -165,15 +165,15 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
                   ),
 
                   onPressed: () {
-                    DBHelper.registerUser(
-                      UserModel(
-                        email: emailcontroller.text,
-                        password: passwordcontroller.text,
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Registration success")),
-                    );
+                    // DBHelper.registerUser(
+                    //   UserModel(
+                    //     email: emailcontroller.text,
+                    //     password: passwordcontroller.text,
+                    //   ),
+                    // );
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text("Registration success")),
+                    // );
                     
                     if (_formKey.currentState?.validate() ?? false) {
                       showDialog(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tugas_10/coming_soon.dart';
 import 'package:flutter_tugas_10/login_page.dart';
 
 void main() {
@@ -9,6 +10,8 @@ void main() {
 }
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -28,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
           passwordController.text == "123456") {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Login berhasil 🎉"),
+            content: Text("Login success 🎉"),
             backgroundColor: Colors.green,
           ),
         );
@@ -137,10 +140,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Password tidak boleh kosong";
+                          return "Password can't be empty";
                         }
                         if (value.length < 6) {
-                          return "Minimal 6 karakter";
+                          return "6 charater at least";
                         }
                         return null;
                       },
@@ -175,31 +178,36 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 15),
 
                     /// SIGN IN BUTTON
-                    Container(
-                      width: double.infinity,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(12),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.pink,
-                            Colors.purple
-                          ],
-                        ),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: login,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Colors.transparent,
-                          shadowColor: Colors.transparent,
-                        ),
-                        child: Text("Sign In"),
-                      ),
-                    ),
+                    /// SIGN IN BUTTON
+Container(
+  width: double.infinity,
+  height: 50,
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(12),
+    gradient: LinearGradient(
+      colors: [Colors.pink, Colors.purple],
+    ),
+  ),
+  child: ElevatedButton(
+    onPressed: () {
+      if (_formKey.currentState!.validate()) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ComingSoonDay15(),
+          ),
+        );
+      }
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    child: Text("Sign In"),
+  ),
+),
 
-                    SizedBox(height: 20),
+SizedBox(height: 20),
 
                     /// SIGN UP
                     Row(
