@@ -17,7 +17,7 @@ class _SplashScreenDay16State extends State<SplashScreenDay16> {
   }
 
   Future<void> _autoLogin() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 2));
 
     bool? isLoggedIn = await PreferenceHandler.getIsLogin();
 
