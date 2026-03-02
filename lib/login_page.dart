@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
 import 'package:flutter_tugas_10/day_16/database/sqflite.dart';
+import 'package:flutter_tugas_10/day_17/listview_17.dart';
 import 'package:flutter_tugas_10/empty_page.dart';
 
 class LoginPageDay15 extends StatefulWidget {
@@ -12,10 +13,12 @@ class LoginPageDay15 extends StatefulWidget {
 
 class _LoginPageDay15State extends State<LoginPageDay15> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController emailcontroller = TextEditingController();
-  final TextEditingController passwordcontroller = TextEditingController();
+
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,204 +28,127 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
         padding: EdgeInsets.fromLTRB(32, 100, 32, 20),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              Text(
-                "Join the Community",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Color.fromARGB(255, 39, 35, 35),
-                ),
-              ),
-              Text(
-                "Create your account",
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Color.fromARGB(115, 47, 44, 44),
-                ),
-              ),
-              SizedBox(height: 20),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text("Join the Community", style: TextStyle(fontSize: 25)),
+                Text("Create your account", style: TextStyle(fontSize: 13)),
+                SizedBox(height: 20),
 
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Name",
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                // NAME
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: "Name",
+                    prefixIcon: Icon(Icons.person),
+                    border: OutlineInputBorder(),
                   ),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "Enter your name" : null,
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
+                SizedBox(height: 15),
 
-              SizedBox(height: 15),
-
-              TextFormField(
-                controller: cityController,
-                decoration: InputDecoration(
-                  labelText: "City",
-                  prefixIcon: Icon(Icons.location_city),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                // USERNAME
+                TextFormField(
+                  controller: usernameController,
+                  decoration: InputDecoration(
+                    labelText: "Username",
+                    prefixIcon: Icon(Icons.alternate_email),
+                    border: OutlineInputBorder(),
                   ),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "Enter username" : null,
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your city';
-                  }
-                  return null;
-                },
-              ),
+                SizedBox(height: 15),
 
-              SizedBox(height: 15),
-
-              TextFormField(
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.phone),
-                  labelText: "Phone Number",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                // CITY
+                TextFormField(
+                  controller: phoneNumberController,
+                  decoration: InputDecoration(
+                    labelText: "Phone Number",
+                    prefixIcon: Icon(Icons.phone),
+                    border: OutlineInputBorder(),
                   ),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "Phone Number" : null,
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your phone number';
-                  }
-                  final digitsOnly = RegExp(r'^\d+$');
-                  if (!digitsOnly.hasMatch(value)) {
-                    return 'Only digits allowed';
-                  }
-                  return null;
-                },
-              ),
+                SizedBox(height: 15),
 
-              SizedBox(height: 15),
-
-              TextFormField(
-                controller: emailcontroller,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.email),
-                  labelText: "E-mail",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                // EMAIL
+                TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: "Email",
+                    prefixIcon: Icon(Icons.email),
+                    border: OutlineInputBorder(),
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  final emailRegex = RegExp(
-                    r"^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$",
-                  );
-                  if (!emailRegex.hasMatch(value)) {
-                    return 'Enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-
-              SizedBox(height: 15),
-
-              TextFormField(
-                controller: passwordcontroller,
-                obscureText: true,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.lock),
-                  labelText: "Password",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-
-              SizedBox(height: 15),
-
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFF8428F),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-
-                  onPressed: () {
-                    // DBHelper.registerUser(
-                    //   UserModel(
-                    //     email: emailcontroller.text,
-                    //     password: passwordcontroller.text,
-                    //   ),
-                    // );
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(content: Text("Registration success")),
-                    // );
-                    
-                    if (_formKey.currentState?.validate() ?? false) {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Registration Succesful 🎉"),
-                            content: Text(
-                              "Hallo ${nameController.text} from ${cityController.text}, we welcome you to HerSpace!",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context); // tutup dialog
-                                },
-                                child: Text("Close"),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context); // tutup dialog dulu
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EmptyPage15(
-                                        name: nameController.text,
-                                        city: cityController.text,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text("Agree"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Enter email";
                     }
+                    if (!value.contains("@")) {
+                      return "Invalid email";
+                    }
+                    return null;
                   },
-                  child: Text(
-                    "Sign up",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                ),
+                SizedBox(height: 15),
+
+                // PASSWORD
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    prefixIcon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Enter password";
+                    }
+                    if (value.length < 6) {
+                      return "Min 6 characters";
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color((0XFFF8428F)),
                     ),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        await DBHelper.registerUser(
+                          UserModel(
+                            name: nameController.text,
+                            username: usernameController.text,
+                            email: emailController.text,
+                            password: passwordController.text,
+                          ),
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Registration Successful")),
+                        );
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => UserListPage()),
+                        );
+                      }
+                    },
+                    child: Text("Sign Up"),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

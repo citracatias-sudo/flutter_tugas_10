@@ -5,36 +5,31 @@ import 'package:path/path.dart';
 class DBHelper {
   static Future<Database> db() async {
     final dbPath = await getDatabasesPath();
+
     return openDatabase(
       join(dbPath, 'her_space.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE user (id INTEGER PRIMARY KEY, AUTOINCREMENT, email TEXT, password TEXT)',
-        );
-      },
       version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT,
+            username TEXT, email TEXT, password TEXT)''');
+      },
     );
   }
 
+  // REGISTER
   static Future<void> registerUser(UserModel user) async {
     final dbs = await db();
-    await dbs.insert('user', user.toMap());
+    await dbs.insert('users', user.toMap());
   }
 
-  static Future<UserModel?> loginUser({
-    required String email,
-    required String password,
-  }) async {
+  // READ ALL USERS (untuk ListView)
+  static Future<List<UserModel>> getUsers() async {
     final dbs = await db();
-    final List<Map<String, dynamic>> results = await dbs.query(
-      "user",
-      where: 'email = ? AND password = ?',
-      whereArgs: [email, password],
-    );
+    final List<Map<String, dynamic>> maps = await dbs.query('users');
 
-    if (results.isNotEmpty) {
-      return UserModel.fromMap(results.first);
-    }
-    return null;
+    return List.generate(maps.length, (i) {
+      return UserModel.fromMap(maps[i]);
+    });
   }
 }

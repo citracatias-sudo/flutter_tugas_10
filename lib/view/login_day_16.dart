@@ -3,10 +3,7 @@ import 'package:flutter_tugas_10/coming_soon.dart';
 import 'package:flutter_tugas_10/login_page.dart';
 
 void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: LoginPage(),
-  ));
+  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: LoginPage()));
 }
 
 class LoginPage extends StatefulWidget {
@@ -21,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
+  
   bool rememberMe = false;
   bool obscurePassword = true;
 
@@ -65,18 +62,18 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.pink,
-                      child: Icon(Icons.favorite_border,
-                          color: Colors.white),
-                    ),
+                    // CircleAvatar(
+                    //   radius: 30,
+                    //   backgroundColor: Colors.pink,
+                    //   child: Icon(Icons.favorite_border, color: Colors.white),
+                    // ),
                     SizedBox(height: 20),
                     Text(
                       "Welcome Back",
                       style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold),
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: 5),
                     Text("Sign in to continue"),
@@ -94,16 +91,15 @@ class _LoginPageState extends State<LoginPage> {
                         hintText: "your@email.com",
                         prefixIcon: Icon(Icons.email_outlined),
                         border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Email tidak boleh kosong";
+                          return "Email can't be empty";
                         }
                         if (!value.contains("@")) {
-                          return "Format email tidak valid";
+                          return "Email isn't valid";
                         }
                         return null;
                       },
@@ -123,19 +119,19 @@ class _LoginPageState extends State<LoginPage> {
                         hintText: "Enter your password",
                         prefixIcon: Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
-                          icon: Icon(obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility),
+                          icon: Icon(
+                            obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
                           onPressed: () {
                             setState(() {
-                              obscurePassword =
-                                  !obscurePassword;
+                              obscurePassword = !obscurePassword;
                             });
                           },
                         ),
                         border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       validator: (value) {
@@ -168,10 +164,9 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: () {},
                           child: Text(
                             "Forgot password?",
-                            style: TextStyle(
-                                color: Colors.pink),
+                            style: TextStyle(color: Colors.pink),
                           ),
-                        )
+                        ),
                       ],
                     ),
 
@@ -179,40 +174,45 @@ class _LoginPageState extends State<LoginPage> {
 
                     /// SIGN IN BUTTON
                     /// SIGN IN BUTTON
-Container(
-  width: double.infinity,
-  height: 50,
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(12),
-    gradient: LinearGradient(
-      colors: [Colors.pink, Colors.purple],
-    ),
-  ),
-  child: ElevatedButton(
-    onPressed: () {
-      if (_formKey.currentState!.validate()) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ComingSoonDay15(),
-          ),
-        );
-      }
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.transparent,
-      shadowColor: Colors.transparent,
-    ),
-    child: Text("Sign In"),
-  ),
-),
+                    Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.pink,
+                            const Color.fromARGB(255, 240, 117, 223),
+                          ],
+                        ),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ComingSoonDay15(),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(0, 255, 255, 255),
+                          shadowColor: Colors.transparent,
+                        ),
+                        child: Text(
+                          "Sign In",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
 
-SizedBox(height: 20),
+                    SizedBox(height: 20),
 
                     /// SIGN UP
                     Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Don't have an account? "),
                         TextButton(
@@ -220,19 +220,17 @@ SizedBox(height: 20),
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    LoginPageDay15(),
+                                builder: (context) => LoginPageDay15(),
                               ),
                             );
                           },
                           child: Text(
                             "Sign Up",
-                            style: TextStyle(
-                                color: Colors.pink),
+                            style: TextStyle(color: Colors.pink),
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
