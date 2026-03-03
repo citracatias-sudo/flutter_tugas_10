@@ -55,13 +55,18 @@ class _UserListPageState extends State<UserListPage> {
                       IconButton(
                         onPressed: () async {
                           await showEditDialog(context, user);
+                          setState(() {
+                            futureUsers = UserController.getAllUser();
+                          });
                         },
                         icon: Icon(Icons.edit),
                       ),
                       IconButton(
                         onPressed: () async {
-                          await showDeleteDialog(context, user.id!);
-                          setState(() {});
+                          await showDeleteDialog(context, user);
+                          setState(() {
+                            futureUsers = UserController.getAllUser();
+                          });
                         },
                         icon: Icon(Icons.delete),
                       ),
@@ -76,13 +81,13 @@ class _UserListPageState extends State<UserListPage> {
     );
   }
 
-  Future<void> showDeleteDialog(BuildContext context, int id) async {
+  Future<void> showDeleteDialog(BuildContext context, UserModel user) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text("Confirmation"),
-          content: Text("Delete this user?"),
+          content: Text("Delete user ${user.username}?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -98,7 +103,11 @@ class _UserListPageState extends State<UserListPage> {
     );
 
     if (confirm == true) {
-      await UserController.deleteUser(id);
+      await UserController.deleteUser(user.id!);
+      // show deleted data in snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Deleted ${user.username} (${user.email})")),
+      );
     }
   }
 
