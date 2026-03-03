@@ -15,4 +15,6 @@ class SiswaController {
     print(results.map((e) => SiswaModel.fromMap(e)).toList());
     return results.map((e) => SiswaModel.fromMap(e)).toList();
   }
+
+ 
 }

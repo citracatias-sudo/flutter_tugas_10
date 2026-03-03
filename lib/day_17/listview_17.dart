@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
-import 'package:flutter_tugas_10/day_16/database/sqflite.dart';
+import 'package:flutter_tugas_10/day_16/database/user_controller.dart';
 
 class UserListPage extends StatefulWidget {
   UserListPage({super.key});
@@ -10,12 +10,12 @@ class UserListPage extends StatefulWidget {
 }
 
 class _UserListPageState extends State<UserListPage> {
-  late Future<List<UserModel>> users;
+  late Future<List<UserModel>> futureUsers;
 
   @override
   void initState() {
     super.initState();
-    users = DBHelper.getUsers(); //
+    futureUsers = UserController.getAllUser();
   }
 
   @override
@@ -23,7 +23,7 @@ class _UserListPageState extends State<UserListPage> {
     return Scaffold(
       appBar: AppBar(title: Text("Registered Users")),
       body: FutureBuilder<List<UserModel>>(
-        future: users,
+        future: futureUsers,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -37,21 +37,80 @@ class _UserListPageState extends State<UserListPage> {
 
           return ListView.builder(
             itemCount: data.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (BuildContext context, int index) {
               final user = data[index];
 
               return Card(
                 margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
-                  title: Text(user.name),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.pinkAccent,
+                    child: (Icon(Icons.person, color: Colors.white)),
+                  ),
+                  title: Text(user.username),
                   subtitle: Text(user.email),
-                  trailing: Text(user.username),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          await showEditDialog(context, user);
+                        },
+                        icon: Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          await showDeleteDialog(context, user.id!);
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           );
         },
       ),
+    );
+  }
+
+  Future<void> showDeleteDialog(BuildContext context, int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Confirmation"),
+          content: Text("Delete this user?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 110, 109, 109),
+              ),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await UserController.deleteUser(id);
+    }
+  }
+
+  Future<void> showEditDialog(BuildContext context, UserModel user) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(title: Text('Edit'), content: Text('Edit data?'));
+      },
     );
   }
 }

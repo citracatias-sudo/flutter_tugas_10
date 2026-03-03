@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
 import 'package:flutter_tugas_10/day_16/database/sqflite.dart';
+import 'package:flutter_tugas_10/day_16/database/user_controller.dart';
 import 'package:flutter_tugas_10/day_17/listview_17.dart';
-import 'package:flutter_tugas_10/empty_page.dart';
 
 class LoginPageDay15 extends StatefulWidget {
   const LoginPageDay15({super.key});
@@ -125,7 +125,7 @@ class _LoginPageDay15State extends State<LoginPageDay15> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        await DBHelper.registerUser(
+                        await UserController.registerUser(
                           UserModel(
                             name: nameController.text,
                             username: usernameController.text,
