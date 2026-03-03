@@ -86,12 +86,9 @@ class _UserListPageState extends State<UserListPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("Cancel"),
+              child: Text("Cancel"),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 110, 109, 109),
-              ),
               onPressed: () => Navigator.pop(context, true),
               child: Text("Delete"),
             ),
@@ -106,11 +103,51 @@ class _UserListPageState extends State<UserListPage> {
   }
 
   Future<void> showEditDialog(BuildContext context, UserModel user) async {
-    await showDialog(
+    final usernameController = TextEditingController(text: user.username);
+    final emailController = TextEditingController(text: user.email);
+
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(title: Text('Edit'), content: Text('Edit data?'));
+        return AlertDialog(
+          title: Text("Edit User"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: usernameController,
+                decoration: InputDecoration(labelText: "Username"),
+              ),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: "Email"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text("Save"),
+            ),
+          ],
+        );
       },
     );
+
+    if (confirm == true) {
+      await UserController.updateUser(
+        UserModel(
+          id: user.id,
+          name: user.name,
+          username: usernameController.text,
+          email: emailController.text,
+          password: user.password,
+        ),
+      );
+    }
   }
 }
