@@ -1,4 +1,3 @@
-import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 

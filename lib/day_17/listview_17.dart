@@ -3,7 +3,7 @@ import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
 import 'package:flutter_tugas_10/day_16/database/user_controller.dart';
 
 class UserListPage extends StatefulWidget {
-  UserListPage({super.key});
+  const UserListPage({super.key});
 
   @override
   State<UserListPage> createState() => _UserListPageState();

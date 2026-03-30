@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_16/database/models/user_model.dart';
-import 'package:flutter_tugas_10/day_16/database/sqflite.dart';
 import 'package:flutter_tugas_10/day_16/database/user_controller.dart';
 import 'package:flutter_tugas_10/day_17/listview_17.dart';
 

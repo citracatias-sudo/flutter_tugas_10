@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_16/database/models/siswa_model.dart';
 import 'package:flutter_tugas_10/day_16/database/siswa_controller.dart';
-import 'package:flutter_tugas_10/day_16/database/user_controller.dart';
 
 class CRSiswaScreen extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
