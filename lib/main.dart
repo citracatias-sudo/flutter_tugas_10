@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_29/views/character_screen.dart';
+import 'package:flutter_tugas_10/day_29/views/onboarding_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: CharacterScreen(),
+      home: OnboardingScreen(),
     );
   }
 }

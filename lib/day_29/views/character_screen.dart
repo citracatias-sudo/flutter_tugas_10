@@ -68,217 +68,251 @@ class _CharacterScreenState extends State<CharacterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:  Color(0xFF03131D),
       appBar: AppBar(
-        title: Text('RICK AND MORTY CHARACTER DATABASE'),
+        title:  Text('RICK & MORTY CHARACTERS'),
         centerTitle: true,
-        backgroundColor: Colors.greenAccent,
+        backgroundColor:  Color(0xFF072634),
+        foregroundColor:  Color(0xFFB8FF5C),
+        elevation: 0,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.trim();
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Cari nama, status, atau species...',
-                prefixIcon: Icon(Icons.search),
-                suffixIcon: _searchQuery.isEmpty
-                    ? null
-                    : IconButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                        icon: Icon(Icons.clear),
-                      ),
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+      body: Container(
+        decoration:  BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF03131D), Color(0xFF072634), Color(0xFF02070D)],
+          ),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding:  EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: TextField(
+                controller: _searchController,
+                style:  TextStyle(color: Colors.white),
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.trim();
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Cari nama, status, atau species...',
+                  hintStyle:  TextStyle(color: Colors.white54),
+                  prefixIcon:  Icon(
+                    Icons.search,
+                    color: Color(0xFF7CF7C9),
+                  ),
+                  suffixIcon: _searchQuery.isEmpty
+                      ? null
+                      : IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                          icon:  Icon(Icons.clear, color: Colors.white70),
+                        ),
+                  filled: true,
+                  fillColor:  Color(0xFF0C1D29),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Result>>(
-              future: _charactersFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+            Expanded(
+              child: FutureBuilder<List<Result>>(
+                future: _charactersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return  Center(child: CircularProgressIndicator());
+                  }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height: 220,
-                            child: Lottie.asset(
-                              'assets/animations/404 error page with cat.json',
-                              fit: BoxFit.contain,
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Padding(
+                        padding:  EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              height: 220,
+                              child: Lottie.asset(
+                                'assets/animations/404 error page with cat.json',
+                                fit: BoxFit.contain,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 12),
-                          Text(
-                            'Gagal memuat data karakter.',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                             SizedBox(height: 12),
+                             Text(
+                              'Gagal memuat data karakter.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: _refreshCharacters,
-                            child: Text('Coba lagi'),
-                          ),
-                        ],
+                             SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: _refreshCharacters,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:  Color(0xFF7CF7C9),
+                                foregroundColor:  Color(0xFF03131D),
+                              ),
+                              child:  Text('Coba lagi'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    );
+                  }
+
+                  final filteredCharacters = _filterCharacters(
+                    snapshot.data ?? [],
                   );
-                }
 
-                final filteredCharacters = _filterCharacters(
-                  snapshot.data ?? [],
-                );
-
-                if (filteredCharacters.isEmpty) {
-                  return RefreshIndicator(
-                    onRefresh: _refreshCharacters,
-                    child: ListView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 48,
-                          ),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 220,
-                                child: Lottie.asset(
-                                  'assets/animations/empty box3.json',
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                'Karakter tidak ditemukan.',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Coba kata kunci lain atau tarik ke bawah untuk memuat ulang data.',
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: _refreshCharacters,
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(bottom: 12),
-                    itemCount: filteredCharacters.length,
-                    itemBuilder: (context, index) {
-                      final character = filteredCharacters[index];
-                      final status = character.status ?? 'Unknown';
-                      final species = character.species ?? 'Unknown';
-
-                      return Card(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 8,
-                        ),
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.all(10),
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              character.image ?? '',
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 70,
-                                  height: 70,
-                                  color: Colors.grey.shade300,
-                                  alignment: Alignment.center,
-                                  child: Icon(Icons.broken_image),
-                                );
-                              },
+                  if (filteredCharacters.isEmpty) {
+                    return RefreshIndicator(
+                      onRefresh: _refreshCharacters,
+                      child: ListView(
+                        physics:  AlwaysScrollableScrollPhysics(),
+                        children: [
+                          Padding(
+                            padding:  EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 48,
                             ),
-                          ),
-                          title: Text(
-                            character.name ?? 'Unknown',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: EdgeInsets.only(top: 6),
-                            child: Row(
+                            child: Column(
                               children: [
-                                CircleAvatar(
-                                  radius: 5,
-                                  backgroundColor: _statusColor(status),
-                                ),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    '$status - $species',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                                SizedBox(
+                                  height: 220,
+                                  child: Lottie.asset(
+                                    'assets/animations/empty box3.json',
+                                    fit: BoxFit.contain,
                                   ),
+                                ),
+                                 SizedBox(height: 16),
+                                 Text(
+                                  'Karakter tidak ditemukan.',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                 SizedBox(height: 8),
+                                 Text(
+                                  'Coba kata kunci lain atau tarik ke bawah untuk memuat ulang data.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white70),
                                 ),
                               ],
                             ),
                           ),
-                          trailing: Icon(Icons.arrow_forward_ios, size: 16),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    DetailScreen(character: character),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: _refreshCharacters,
+                    child: ListView.builder(
+                      padding:  EdgeInsets.only(bottom: 12),
+                      itemCount: filteredCharacters.length,
+                      itemBuilder: (context, index) {
+                        final character = filteredCharacters[index];
+                        final status = character.status ?? 'Unknown';
+                        final species = character.species ?? 'Unknown';
+
+                        return Card(
+                          color:  Color(0xFF0C1D29),
+                          margin:  EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 8,
+                          ),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            side:  BorderSide(color: Color(0x1F7CF7C9)),
+                          ),
+                          child: ListTile(
+                            contentPadding:  EdgeInsets.all(10),
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                character.image ?? '',
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 70,
+                                    height: 70,
+                                    color: Colors.grey.shade300,
+                                    alignment: Alignment.center,
+                                    child:  Icon(Icons.broken_image),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                            ),
+                            title: Text(
+                              character.name ?? 'Unknown',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style:  TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding:  EdgeInsets.only(top: 6),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 5,
+                                    backgroundColor: _statusColor(status),
+                                  ),
+                                   SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '$status - $species',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style:  TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            trailing:  Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Color(0xFF7CF7C9),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailScreen(character: character),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
