@@ -18,30 +18,62 @@ class ProfileService {
     if (response.statusCode == 200) {
       return GetUserModel.fromJson(json.decode(response.body));
     } else {
-      throw Exception("Gagal memuat profil");
+      throw Exception(_extractMessage(response, "Gagal memuat profil"));
     }
   }
 
   // UPDATE DATA (Update) - Mengirim perubahan ke API
   static Future<bool> updateProfile(String name, String email) async {
     var token = await PreferenceHandler.getToken();
-    final response = await http.post(
-      Uri.parse(
-        Endpoint.profile,
-      ), // Biasanya endpoint update sama dengan profile tapi method POST/PUT
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
-      body: {"name": name, "email": email},
+    final headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
+    final body = {"name": name, "email": email};
+
+    http.Response response = await http.put(
+      Uri.parse(Endpoint.profile),
+      headers: headers,
+      body: body,
     );
-    return response.statusCode == 200;
+
+    if (response.statusCode == 404 ||
+        response.statusCode == 405 ||
+        response.statusCode == 422) {
+      response = await http.post(
+        Uri.parse(Endpoint.profile),
+        headers: headers,
+        body: body,
+      );
+    }
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    throw Exception(_extractMessage(response, "Gagal menyimpan perubahan profil"));
   }
 
-  // DELETE (Delete)
-  static Future<bool> deleteAccount() async {
-    var token = await PreferenceHandler.getToken();
-    final response = await http.delete(
-      Uri.parse(Endpoint.profile), // Sesuaikan endpoint delete
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
-    );
-    return response.statusCode == 200;
+  static String _extractMessage(http.Response response, String fallback) {
+    try {
+      final jsonBody = json.decode(response.body);
+      if (jsonBody is Map<String, dynamic>) {
+        final message = jsonBody['message'];
+        if (message is String && message.isNotEmpty) {
+          return message;
+        }
+
+        final errors = jsonBody['errors'];
+        if (errors is Map<String, dynamic> && errors.isNotEmpty) {
+          final firstError = errors.values.first;
+          if (firstError is List && firstError.isNotEmpty) {
+            return firstError.first.toString();
+          }
+          return firstError.toString();
+        }
+      }
+    } catch (_) {}
+
+    return fallback;
   }
 }
