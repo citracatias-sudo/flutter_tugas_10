@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tugas_10/day_29/views/character_screen.dart';
 import 'package:flutter_tugas_10/day_29/views/onboarding_screen.dart';
+import 'package:flutter_tugas_10/day_30/screen/login_day_30.dart';
+import 'package:flutter_tugas_10/view/login_day_16.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,7 +35,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: OnboardingScreen(),
+      home: LoginPageDay30(),
     );
   }
 }
