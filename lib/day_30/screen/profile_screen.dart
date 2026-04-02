@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../api/profile_service.dart';
 import '../models/get_model.dart';
+import 'login_day_30.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,6 +22,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? errorMessage;
   UserData? user;
   Map<String, Map<String, String>> lastChanges = {};
+
+  File? profileImageFile;
+
+  final Color kPrimaryGreen = Color(0xFF2F7A4D);
+  final Color kAccentYellow = Color(0xFFF5B232);
+  final Color kBackgroundLight = Color(0xFFF5FFF5);
 
   @override
   void initState() {
@@ -147,6 +156,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> pickProfilePhoto() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (picked == null) return;
+
+    setState(() {
+      profileImageFile = File(picked.path);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Foto profil berhasil dipilih'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void removeProfilePhoto() {
+    setState(() {
+      profileImageFile = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Foto profil dikembalikan ke default'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> deleteAccount() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Konfirmasi Hapus Akun'),
+        content: Text('Apakah anda yakin menghapus akun ini?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Batal')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Hapus')),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    try {
+      final success = await ProfileService.deleteProfile();
+      if (success) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Akun berhasil dihapus, silakan login ulang'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPageDay30()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   InputDecoration buildInputDecoration({
     required String hintText,
     required IconData prefixIcon,
@@ -155,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       hintText: hintText,
       prefixIcon: Icon(prefixIcon),
       filled: true,
-      fillColor: Color(0xFFFFF7FB),
+      fillColor: Colors.white.withValues(alpha: 0.94),
       contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -163,11 +245,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFFF1D8E7)),
+        borderSide: BorderSide(color: kPrimaryGreen.withValues(alpha: 0.35)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFFEA4C89), width: 1.3),
+        borderSide: BorderSide(color: kPrimaryGreen, width: 1.3),
       ),
     );
   }
@@ -225,14 +307,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFF7FB),
+      backgroundColor: kBackgroundLight,
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFFFE3F1), Color(0xFFFFF7FB), Color(0xFFFDEBFF)],
+              colors: [Color(0xFFE8F8ED), Color(0xFFFFFBE6), Color(0xFFF5FFF0)],
             ),
           ),
           child: isLoading
@@ -292,8 +374,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      Color(0xFFEA4C89),
-                                      Color(0xFFFF8FB1),
+                                      kPrimaryGreen,
+                                      kAccentYellow,
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(20),
@@ -336,24 +418,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: double.infinity,
                             padding: EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: Color(0xFFFFF5FA),
+                              color: kBackgroundLight,
                               borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: kPrimaryGreen.withValues(alpha: 0.20)),
                             ),
                             child: Row(
                               children: [
                                 CircleAvatar(
-                                  radius: 28,
-                                  backgroundColor: Color(0xFFFFD1E3),
-                                  child: Text(
-                                    (user?.name?.isNotEmpty ?? false)
-                                        ? user!.name![0].toUpperCase()
-                                        : 'U',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF9C2F60),
-                                    ),
-                                  ),
+                                  radius: 34,
+                                  backgroundColor: Colors.grey.shade300,
+                                  backgroundImage: profileImageFile != null
+                                      ? FileImage(profileImageFile!) as ImageProvider
+                                      : null,
+                                  child: profileImageFile == null
+                                      ? Text(
+                                          (user?.name?.isNotEmpty ?? false)
+                                              ? user!.name![0].toUpperCase()
+                                              : 'U',
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: kPrimaryGreen,
+                                          ),
+                                        )
+                                      : null,
                                 ),
                                 SizedBox(width: 14),
                                 Expanded(
@@ -381,6 +469,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: pickProfilePhoto,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: kPrimaryGreen,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  icon: Icon(Icons.upload_file),
+                                  label: Text('Unggah Foto'),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              OutlinedButton.icon(
+                                onPressed: removeProfilePhoto,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: kPrimaryGreen,
+                                  side: BorderSide(color: kPrimaryGreen),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                icon: Icon(Icons.delete_outline),
+                                label: Text('Kembali Default'),
+                              ),
+                            ],
                           ),
                           SizedBox(height: 24),
                           Text(
@@ -488,7 +607,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     onPressed: isEditing ? resetChanges : null,
                                     style: OutlinedButton.styleFrom(
                                       side: BorderSide(
-                                        color: Color(0xFFF2BDD3),
+                                        color: kPrimaryGreen,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16),
@@ -497,7 +616,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: Text(
                                       'Hapus Perubahan',
                                       style: TextStyle(
-                                        color: Color(0xFFB13C6C),
+                                        color: kPrimaryGreen,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -505,6 +624,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                          SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: OutlinedButton.icon(
+                              onPressed: deleteAccount,
+                              icon: Icon(Icons.delete_forever, color: kPrimaryGreen),
+                              label: Text(
+                                'Hapus Akun',
+                                style: TextStyle(color: kPrimaryGreen, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: kPrimaryGreen),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                            ),
                           ),
                           if (lastChanges.isNotEmpty) ...[
                             SizedBox(height: 28),

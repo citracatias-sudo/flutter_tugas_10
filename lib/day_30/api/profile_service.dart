@@ -54,6 +54,21 @@ class ProfileService {
     throw Exception(_extractMessage(response, "Gagal menyimpan perubahan profil"));
   }
 
+  // DELETE DATA (Delete) - Menghapus profil di API
+  static Future<bool> deleteProfile() async {
+    var token = await PreferenceHandler.getToken();
+    final response = await http.delete(
+      Uri.parse(Endpoint.profile),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    }
+
+    throw Exception(_extractMessage(response, "Gagal menghapus profil"));
+  }
+
   static String _extractMessage(http.Response response, String fallback) {
     try {
       final jsonBody = json.decode(response.body);

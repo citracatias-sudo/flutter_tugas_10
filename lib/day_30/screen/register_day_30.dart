@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../api/auth_service.dart';
 
 class RegisterScreenDay30 extends StatefulWidget {
+  const RegisterScreenDay30({super.key});
+
   @override
   State<RegisterScreenDay30> createState() => _RegisterScreenDay30State();
 }
@@ -80,7 +82,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
       prefixIcon: Icon(prefixIcon),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: Color(0xFFFFF7FB),
+      fillColor: Color(0xFFF9FFF3),
       contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -88,11 +90,11 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFFF1D8E7)),
+        borderSide: BorderSide(color: Color(0xFFA5D6A7)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFFEA4C89), width: 1.3),
+        borderSide: BorderSide(color: Color(0xFF2E7D32), width: 1.3),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -108,14 +110,14 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFF7FB),
+      backgroundColor: Color(0xFFF9FFF3),
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFFFE3F1), Color(0xFFFFF7FB), Color(0xFFFDEBFF)],
+              colors: [Color(0xFFE8F8ED), Color(0xFFFFFBE6), Color(0xFFF5FFF0)],
             ),
           ),
           child: Center(
@@ -129,7 +131,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFFEA4C89).withValues(alpha: 0.18),
+                        color: Color(0xFF2E7D32).withValues(alpha: 0.18),
                       blurRadius: 30,
                       offset: Offset(0, 16),
                     ),
@@ -146,11 +148,11 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                           IconButton(
                             onPressed: () => Navigator.pop(context),
                             style: IconButton.styleFrom(
-                              backgroundColor: Color(0xFFFFF1F7),
+                              backgroundColor: Color(0xFFF1FFF0),
                             ),
                             icon: Icon(
                               Icons.arrow_back_rounded,
-                              color: Color(0xFFEA4C89),
+                              color: Color(0xFF2E7D32),
                             ),
                           ),
                           SizedBox(width: 12),
@@ -159,7 +161,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                             height: 56,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFFEA4C89), Color(0xFFFF8FB1)],
+                                colors: [Color(0xFF2E7D32), Color(0xFFF5B232)],
                               ),
                               borderRadius: BorderRadius.circular(18),
                             ),
