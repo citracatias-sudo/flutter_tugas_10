@@ -5,26 +5,30 @@ import 'endpoint.dart';
 import '../models/get_model.dart';
 
 class ProfileService {
-  // GET DATA (Read) - Mengambil data user yang sedang login
   static Future<GetUserModel> getProfile() async {
-    var token = await PreferenceHandler.getToken();
+    final token = await PreferenceHandler.getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception("Token login tidak ditemukan");
+    }
+
     final response = await http.get(
-      Uri.parse(
-        Endpoint.profile,
-      ), // Sesuaikan endpoint profile di endpoint.dart
+      Uri.parse(Endpoint.profile),
       headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
     if (response.statusCode == 200) {
       return GetUserModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception(_extractMessage(response, "Gagal memuat profil"));
     }
+
+    throw Exception(_extractMessage(response, "Gagal memuat profil"));
   }
 
-  // UPDATE DATA (Update) - Mengirim perubahan ke API
   static Future<bool> updateProfile(String name, String email) async {
-    var token = await PreferenceHandler.getToken();
+    final token = await PreferenceHandler.getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception("Token login tidak ditemukan");
+    }
+
     final headers = {
       "Accept": "application/json",
       "Authorization": "Bearer $token",
@@ -37,9 +41,7 @@ class ProfileService {
       body: body,
     );
 
-    if (response.statusCode == 404 ||
-        response.statusCode == 405 ||
-        response.statusCode == 422) {
+    if (response.statusCode == 404 || response.statusCode == 405) {
       response = await http.post(
         Uri.parse(Endpoint.profile),
         headers: headers,
@@ -47,16 +49,19 @@ class ProfileService {
       );
     }
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
     }
 
     throw Exception(_extractMessage(response, "Gagal menyimpan perubahan profil"));
   }
 
-  // DELETE DATA (Delete) - Menghapus profil di API
   static Future<bool> deleteProfile() async {
-    var token = await PreferenceHandler.getToken();
+    final token = await PreferenceHandler.getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception("Token login tidak ditemukan");
+    }
+
     final response = await http.delete(
       Uri.parse(Endpoint.profile),
       headers: {"Accept": "application/json", "Authorization": "Bearer $token"},

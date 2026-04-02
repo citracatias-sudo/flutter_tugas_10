@@ -22,6 +22,11 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  final Color kPrimaryPink = const Color(0xFFEA4C89);
+  final Color kSoftPink = const Color(0xFFFF7AA2);
+  final Color kAccentYellow = const Color(0xFFF5B232);
+  final Color kBackgroundLight = const Color(0xFFFFF7FB);
+
   bool rememberMe = false;
   bool obscurePassword = true;
   bool isLoading = false;
@@ -54,7 +59,12 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
         passwordController.text,
       );
 
-      await PreferenceHandler().storingToken(response.data?.token ?? '');
+      final token = response.data?.token ?? '';
+      if (token.isEmpty) {
+        throw Exception('Token login tidak ditemukan dari server');
+      }
+
+      await PreferenceHandler().storingToken(token);
       await PreferenceHandler().storingIsLogin(true);
 
       if (!mounted) {
@@ -63,7 +73,7 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
       );
     } catch (e) {
       if (!mounted) {
@@ -92,10 +102,10 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      prefixIcon: Icon(prefixIcon),
+      prefixIcon: Icon(prefixIcon, color: kPrimaryPink),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: Color(0xFFF9FFF3),
+      fillColor: Color(0xFFFFEFF5),
       contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -103,11 +113,11 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFFA5D6A7)),
+        borderSide: BorderSide(color: Color(0xFFF4C6D8)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFF2E7D32), width: 1.3),
+        borderSide: BorderSide(color: kPrimaryPink, width: 1.3),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -123,14 +133,14 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF9FFF3),
+      backgroundColor: kBackgroundLight,
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFE8F8ED), Color(0xFFFFFBE6), Color(0xFFF5FFF0)],
+              colors: [Color(0xFFFFF7FB), Color(0xFFFFEEF5), Color(0xFFFFFBF2)],
             ),
           ),
           child: Center(
@@ -144,7 +154,7 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF2E7D32).withValues(alpha: 0.18),
+                      color: kPrimaryPink.withValues(alpha: 0.18),
                       blurRadius: 30,
                       offset: Offset(0, 16),
                     ),
@@ -161,7 +171,7 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
                         height: 64,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Color(0xFF2E7D32), Color(0xFFF5B232)],
+                            colors: [kPrimaryPink, kSoftPink, kAccentYellow],
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -257,7 +267,7 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
                       Row(
                         children: [
                           Checkbox(
-                            activeColor: Color(0xFFEA4C89),
+                            activeColor: kPrimaryPink,
                             value: rememberMe,
                             onChanged: (value) {
                               setState(() {
@@ -275,7 +285,7 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
                             child: Text(
                               'Forgot password?',
                               style: TextStyle(
-                                color: Color(0xFFEA4C89),
+                                color: kPrimaryPink,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -290,7 +300,7 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             gradient: LinearGradient(
-                              colors: [Color(0xFFEA4C89), Color(0xFFFF7AA2)],
+                              colors: [kPrimaryPink, kSoftPink],
                             ),
                           ),
                           child: ElevatedButton(
@@ -338,14 +348,15 @@ class _LoginPageDay30State extends State<LoginPageDay30> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => RegisterScreenDay30(),
+                                  builder: (context) =>
+                                      const RegisterScreenDay30(),
                                 ),
                               );
                             },
                             child: Text(
                               'Daftar',
                               style: TextStyle(
-                                color: Color(0xFFEA4C89),
+                                color: kPrimaryPink,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

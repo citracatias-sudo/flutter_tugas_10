@@ -14,6 +14,11 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
   final emailController = TextEditingController();
   final passController = TextEditingController();
 
+  final Color kPrimaryPink = const Color(0xFFEA4C89);
+  final Color kSoftPink = const Color(0xFFFF7AA2);
+  final Color kAccentYellow = const Color(0xFFF5B232);
+  final Color kBackgroundLight = const Color(0xFFFFF7FB);
+
   bool obscurePassword = true;
   bool isLoading = false;
 
@@ -79,10 +84,10 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      prefixIcon: Icon(prefixIcon),
+      prefixIcon: Icon(prefixIcon, color: kPrimaryPink),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: Color(0xFFF9FFF3),
+      fillColor: Color(0xFFFFEFF5),
       contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -90,11 +95,11 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFFA5D6A7)),
+        borderSide: BorderSide(color: Color(0xFFF4C6D8)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Color(0xFF2E7D32), width: 1.3),
+        borderSide: BorderSide(color: kPrimaryPink, width: 1.3),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -110,14 +115,14 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF9FFF3),
+      backgroundColor: kBackgroundLight,
       body: SafeArea(
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFE8F8ED), Color(0xFFFFFBE6), Color(0xFFF5FFF0)],
+              colors: [Color(0xFFFFF7FB), Color(0xFFFFEEF5), Color(0xFFFFFBF2)],
             ),
           ),
           child: Center(
@@ -131,7 +136,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                        color: Color(0xFF2E7D32).withValues(alpha: 0.18),
+                      color: kPrimaryPink.withValues(alpha: 0.18),
                       blurRadius: 30,
                       offset: Offset(0, 16),
                     ),
@@ -148,11 +153,11 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                           IconButton(
                             onPressed: () => Navigator.pop(context),
                             style: IconButton.styleFrom(
-                              backgroundColor: Color(0xFFF1FFF0),
+                              backgroundColor: Color(0xFFFFF2F7),
                             ),
                             icon: Icon(
                               Icons.arrow_back_rounded,
-                              color: Color(0xFF2E7D32),
+                              color: kPrimaryPink,
                             ),
                           ),
                           SizedBox(width: 12),
@@ -161,7 +166,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                             height: 56,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFF2E7D32), Color(0xFFF5B232)],
+                                colors: [kPrimaryPink, kSoftPink, kAccentYellow],
                               ),
                               borderRadius: BorderRadius.circular(18),
                             ),
@@ -285,7 +290,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             gradient: LinearGradient(
-                              colors: [Color(0xFFEA4C89), Color(0xFFFF7AA2)],
+                              colors: [kPrimaryPink, kSoftPink],
                             ),
                           ),
                           child: ElevatedButton(
@@ -333,7 +338,7 @@ class _RegisterScreenDay30State extends State<RegisterScreenDay30> {
                             child: Text(
                               'Masuk',
                               style: TextStyle(
-                                color: Color(0xFFEA4C89),
+                                color: kPrimaryPink,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_tugas_10/day_16/database/preference.dart';
 import 'package:image_picker/image_picker.dart';
+import '../api/profile_local_storage.dart';
 import '../api/profile_service.dart';
 import '../models/get_model.dart';
 import 'login_day_30.dart';
-import 'profile_update_success_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,6 +17,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
+  final nameFocusNode = FocusNode();
+  final emailFocusNode = FocusNode();
 
   bool isEditing = false;
   bool isLoading = true;
@@ -30,16 +33,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final Color kAccentYellow = Color(0xFFF5B232);
   final Color kBackgroundLight = Color(0xFFFFF7FB);
 
+  String get displayName {
+    final value = isEditing ? nameController.text.trim() : user?.name?.trim();
+    return (value != null && value.isNotEmpty) ? value : '-';
+  }
+
+  String get displayEmail {
+    final value = isEditing ? emailController.text.trim() : user?.email?.trim();
+    return (value != null && value.isNotEmpty) ? value : '-';
+  }
+
   @override
   void initState() {
     super.initState();
     loadProfile();
+    loadSavedProfilePhoto();
   }
 
   @override
   void dispose() {
     nameController.dispose();
     emailController.dispose();
+    nameFocusNode.dispose();
+    emailFocusNode.dispose();
     super.dispose();
   }
 
@@ -65,6 +81,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> loadSavedProfilePhoto() async {
+    final savedPath = await ProfileLocalStorage.getProfileImagePath();
+    if (savedPath == null || savedPath.isEmpty) {
+      return;
+    }
+
+    final savedFile = File(savedPath);
+    if (!await savedFile.exists()) {
+      await ProfileLocalStorage.clearProfileImagePath();
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      profileImageFile = savedFile;
+    });
+  }
+
   Future<void> saveProfile() async {
     final newName = nameController.text.trim();
     final newEmail = emailController.text.trim();
@@ -76,6 +113,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      return;
+    }
+
+    if (!newEmail.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Format email belum valid'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    if (newName == (user?.name ?? '') && newEmail == (user?.email ?? '')) {
+      setState(() {
+        isEditing = false;
+      });
       return;
     }
 
@@ -100,10 +154,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isEditing = false;
       });
 
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ProfileUpdateSuccessScreen(),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profil berhasil diperbarui'),
+          behavior: SnackBarBehavior.floating,
         ),
       );
     } catch (e) {
@@ -142,8 +196,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (picked == null) return;
 
+    final file = File(picked.path);
+    await ProfileLocalStorage.saveProfileImagePath(file.path);
+
     setState(() {
-      profileImageFile = File(picked.path);
+      profileImageFile = file;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -154,15 +211,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void toggleEditing() {
+  void startEditing({bool focusEmail = false}) {
     if (isEditing) {
-      resetChanges();
+      if (focusEmail) {
+        emailFocusNode.requestFocus();
+      } else {
+        nameFocusNode.requestFocus();
+      }
       return;
     }
 
     setState(() {
       isEditing = true;
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (focusEmail) {
+        emailFocusNode.requestFocus();
+      } else {
+        nameFocusNode.requestFocus();
+      }
+    });
+  }
+
+  void toggleEditing() {
+    if (isEditing) {
+      resetChanges();
+      return;
+    }
+
+    startEditing();
   }
 
   Future<void> deleteAccount() async {
@@ -172,8 +251,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text('Konfirmasi Hapus Akun'),
         content: Text('Apakah anda yakin menghapus akun ini?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Batal')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Hapus')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Hapus'),
+          ),
         ],
       ),
     );
@@ -183,6 +268,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final success = await ProfileService.deleteProfile();
       if (success) {
         if (!mounted) return;
+
+        await PreferenceHandler().init();
+        await PreferenceHandler().deleteToken();
+        await PreferenceHandler().deleteIsLogin();
+        await ProfileLocalStorage.clearProfileImagePath();
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -209,10 +299,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   InputDecoration buildInputDecoration({
     required String hintText,
     required IconData prefixIcon,
+    Widget? suffixIcon,
   }) {
     return InputDecoration(
       hintText: hintText,
       prefixIcon: Icon(prefixIcon, color: kPrimaryPink),
+      suffixIcon: suffixIcon,
       filled: true,
       fillColor: isEditing ? Colors.white : Color(0xFFFFEFF5),
       contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
@@ -255,8 +347,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildProfileAvatar() {
-    final initial = (user?.name?.isNotEmpty ?? false)
-        ? user!.name![0].toUpperCase()
+    final initial = displayName != '-'
+        ? displayName[0].toUpperCase()
         : 'U';
 
     return SizedBox(
@@ -283,11 +375,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : null,
           ),
           buildIconAction(
-            icon: Icons.edit_rounded,
-            onTap: toggleEditing,
-            alignment: Alignment.topRight,
-          ),
-          buildIconAction(
             icon: Icons.add_a_photo_rounded,
             onTap: pickProfilePhoto,
             alignment: Alignment.bottomRight,
@@ -301,9 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget buildActionButtons() {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-      ),
+      decoration: BoxDecoration(color: Colors.transparent),
       child: Row(
         children: [
           Expanded(
@@ -312,9 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [kPrimaryPink, kSoftPink],
-                  ),
+                  gradient: LinearGradient(colors: [kPrimaryPink, kSoftPink]),
                 ),
                 child: ElevatedButton(
                   onPressed: isSaving ? null : saveProfile,
@@ -493,9 +576,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               color: Color(0xFFFFF2F7),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Color(0xFFF4C6D8),
-                              ),
+                              border: Border.all(color: Color(0xFFF4C6D8)),
                             ),
                             child: Row(
                               children: [
@@ -507,7 +588,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        user?.name ?? '-',
+                                        displayName,
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -516,7 +597,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                       SizedBox(height: 4),
                                       Text(
-                                        user?.email ?? '-',
+                                        displayEmail,
                                         style: TextStyle(
                                           color: Color(0xFF7A647D),
                                         ),
@@ -538,10 +619,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           SizedBox(height: 8),
                           TextField(
                             controller: nameController,
-                            enabled: isEditing,
+                            focusNode: nameFocusNode,
+                            readOnly: !isEditing,
+                            showCursor: isEditing,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (_) => setState(() {}),
+                            onSubmitted: (_) => emailFocusNode.requestFocus(),
                             decoration: buildInputDecoration(
                               hintText: 'Masukkan nama lengkap',
                               prefixIcon: Icons.person_outline_rounded,
+                              suffixIcon: !isEditing
+                                  ? IconButton(
+                                      onPressed: () => startEditing(),
+                                      icon: Icon(
+                                        Icons.edit_rounded,
+                                        color: kPrimaryPink,
+                                      ),
+                                      tooltip: 'Edit nama',
+                                    )
+                                  : null,
                             ),
                           ),
                           SizedBox(height: 20),
@@ -555,10 +651,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           SizedBox(height: 8),
                           TextField(
                             controller: emailController,
-                            enabled: isEditing,
+                            focusNode: emailFocusNode,
+                            readOnly: !isEditing,
+                            showCursor: isEditing,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                            onChanged: (_) => setState(() {}),
+                            onSubmitted: (_) {
+                              if (!isSaving) {
+                                saveProfile();
+                              }
+                            },
                             decoration: buildInputDecoration(
                               hintText: 'Masukkan email',
                               prefixIcon: Icons.email_outlined,
+                              suffixIcon: !isEditing
+                                  ? IconButton(
+                                      onPressed: () => startEditing(
+                                        focusEmail: true,
+                                      ),
+                                      icon: Icon(
+                                        Icons.edit_rounded,
+                                        color: kPrimaryPink,
+                                      ),
+                                      tooltip: 'Edit email',
+                                    )
+                                  : null,
                             ),
                           ),
                           SizedBox(height: 24),
@@ -569,7 +687,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: 48,
                             child: OutlinedButton.icon(
                               onPressed: deleteAccount,
-                              icon: Icon(Icons.delete_forever, color: kPrimaryPink),
+                              icon: Icon(
+                                Icons.delete_forever,
+                                color: kPrimaryPink,
+                              ),
                               label: Text(
                                 'Hapus Akun',
                                 style: TextStyle(

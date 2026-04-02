@@ -32,7 +32,7 @@ class ProfileUpdateSuccessScreen extends StatelessWidget {
                   Container(
                     width: 88,
                     height: 88,
-                    decoration: const BoxDecoration(
+                    decoration:  BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         colors: [Color(0xFFEA4C89), Color(0xFFFF7AA2)],
