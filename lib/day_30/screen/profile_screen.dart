@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../api/profile_service.dart';
 import '../models/get_model.dart';
 import 'login_day_30.dart';
+import 'profile_update_success_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,13 +22,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isSaving = false;
   String? errorMessage;
   UserData? user;
-  Map<String, Map<String, String>> lastChanges = {};
 
   File? profileImageFile;
 
-  final Color kPrimaryGreen = Color(0xFF2F7A4D);
+  final Color kPrimaryPink = Color(0xFFEA4C89);
+  final Color kSoftPink = Color(0xFFFF7AA2);
   final Color kAccentYellow = Color(0xFFF5B232);
-  final Color kBackgroundLight = Color(0xFFF5FFF5);
+  final Color kBackgroundLight = Color(0xFFFFF7FB);
 
   @override
   void initState() {
@@ -65,8 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> saveProfile() async {
-    final oldName = user?.name ?? '';
-    final oldEmail = user?.email ?? '';
     final newName = nameController.text.trim();
     final newEmail = emailController.text.trim();
 
@@ -91,33 +90,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         throw Exception('Gagal menyimpan perubahan profil');
       }
 
-      await loadProfile();
-
-      final updatedChanges = <String, Map<String, String>>{};
-      if (oldName != newName) {
-        updatedChanges['Nama'] = {'before': oldName, 'after': newName};
-      }
-      if (oldEmail != newEmail) {
-        updatedChanges['Email'] = {'before': oldEmail, 'after': newEmail};
-      }
+      user = UserData(id: user?.id, name: newName, email: newEmail);
 
       if (!mounted) {
         return;
       }
 
       setState(() {
-        lastChanges = updatedChanges;
         isEditing = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            updatedChanges.isEmpty
-                ? 'Tidak ada perubahan data'
-                : 'Profil berhasil diperbarui',
-          ),
-          behavior: SnackBarBehavior.floating,
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileUpdateSuccessScreen(),
         ),
       );
     } catch (e) {
@@ -147,13 +133,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       isEditing = false;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Perubahan input berhasil dihapus'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 
   Future<void> pickProfilePhoto() async {
@@ -175,17 +154,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void removeProfilePhoto() {
-    setState(() {
-      profileImageFile = null;
-    });
+  void toggleEditing() {
+    if (isEditing) {
+      resetChanges();
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Foto profil dikembalikan ke default'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    setState(() {
+      isEditing = true;
+    });
   }
 
   Future<void> deleteAccount() async {
@@ -216,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginPageDay30()),
+          MaterialPageRoute(builder: (context) => const LoginPageDay30()),
         );
       }
     } catch (e) {
@@ -235,9 +212,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      prefixIcon: Icon(prefixIcon),
+      prefixIcon: Icon(prefixIcon, color: kPrimaryPink),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.94),
+      fillColor: isEditing ? Colors.white : Color(0xFFFFEFF5),
       contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -245,59 +222,154 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: kPrimaryGreen.withValues(alpha: 0.35)),
+        borderSide: BorderSide(color: Color(0xFFF4C6D8)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: kPrimaryGreen, width: 1.3),
+        borderSide: BorderSide(color: kPrimaryPink, width: 1.3),
       ),
     );
   }
 
-  Widget buildChangeCard(String label, Map<String, String> value) {
+  Widget buildIconAction({
+    required IconData icon,
+    required VoidCallback onTap,
+    required Alignment alignment,
+    Color? backgroundColor,
+  }) {
+    return Align(
+      alignment: alignment,
+      child: Material(
+        color: backgroundColor ?? kPrimaryPink,
+        shape: CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: CircleBorder(),
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(icon, size: 18, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildProfileAvatar() {
+    final initial = (user?.name?.isNotEmpty ?? false)
+        ? user!.name![0].toUpperCase()
+        : 'U';
+
+    return SizedBox(
+      width: 96,
+      height: 96,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Color(0xFFF9D7E4),
+            backgroundImage: profileImageFile != null
+                ? FileImage(profileImageFile!) as ImageProvider
+                : null,
+            child: profileImageFile == null
+                ? Text(
+                    initial,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: kPrimaryPink,
+                    ),
+                  )
+                : null,
+          ),
+          buildIconAction(
+            icon: Icons.edit_rounded,
+            onTap: toggleEditing,
+            alignment: Alignment.topRight,
+          ),
+          buildIconAction(
+            icon: Icons.add_a_photo_rounded,
+            onTap: pickProfilePhoto,
+            alignment: Alignment.bottomRight,
+            backgroundColor: Color(0xFF2D1635),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildActionButtons() {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFFFF5FA),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Color(0xFFF6CADC)),
+        color: Colors.transparent,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF7D3153),
+          Expanded(
+            child: SizedBox(
+              height: 54,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [kPrimaryPink, kSoftPink],
+                  ),
+                ),
+                child: ElevatedButton(
+                  onPressed: isSaving ? null : saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    disabledBackgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: isSaving
+                      ? SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.4,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          'Simpan Update',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
+              ),
             ),
           ),
-          SizedBox(height: 10),
-          Text(
-            'Sebelum',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF9E6D84),
+          SizedBox(width: 12),
+          Expanded(
+            child: SizedBox(
+              height: 54,
+              child: OutlinedButton(
+                onPressed: isSaving ? null : resetChanges,
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Color(0xFFF3A8C3)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  'Batal',
+                  style: TextStyle(
+                    color: kPrimaryPink,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 4),
-          Text(value['before']!.isEmpty ? '-' : value['before']!),
-          SizedBox(height: 10),
-          Text(
-            'Sesudah',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF9E6D84),
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            value['after']!.isEmpty ? '-' : value['after']!,
-            style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -314,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFE8F8ED), Color(0xFFFFFBE6), Color(0xFFF5FFF0)],
+              colors: [Color(0xFFFFF7FB), Color(0xFFFFEEF5), Color(0xFFFFFBF2)],
             ),
           ),
           child: isLoading
@@ -374,7 +446,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      kPrimaryGreen,
+                                      kPrimaryPink,
+                                      kSoftPink,
                                       kAccentYellow,
                                     ],
                                   ),
@@ -418,31 +491,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: double.infinity,
                             padding: EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: kBackgroundLight,
+                              color: Color(0xFFFFF2F7),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: kPrimaryGreen.withValues(alpha: 0.20)),
+                              border: Border.all(
+                                color: Color(0xFFF4C6D8),
+                              ),
                             ),
                             child: Row(
                               children: [
-                                CircleAvatar(
-                                  radius: 34,
-                                  backgroundColor: Colors.grey.shade300,
-                                  backgroundImage: profileImageFile != null
-                                      ? FileImage(profileImageFile!) as ImageProvider
-                                      : null,
-                                  child: profileImageFile == null
-                                      ? Text(
-                                          (user?.name?.isNotEmpty ?? false)
-                                              ? user!.name![0].toUpperCase()
-                                              : 'U',
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: kPrimaryGreen,
-                                          ),
-                                        )
-                                      : null,
-                                ),
+                                buildProfileAvatar(),
                                 SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
@@ -469,37 +526,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-                          ),
-                          SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: pickProfilePhoto,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kPrimaryGreen,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  icon: Icon(Icons.upload_file),
-                                  label: Text('Unggah Foto'),
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              OutlinedButton.icon(
-                                onPressed: removeProfilePhoto,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: kPrimaryGreen,
-                                  side: BorderSide(color: kPrimaryGreen),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                                icon: Icon(Icons.delete_outline),
-                                label: Text('Kembali Default'),
-                              ),
-                            ],
                           ),
                           SizedBox(height: 24),
                           Text(
@@ -536,127 +562,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 54,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Color(0xFFEA4C89),
-                                          Color(0xFFFF7AA2),
-                                        ],
-                                      ),
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: isSaving
-                                          ? null
-                                          : () {
-                                              if (isEditing) {
-                                                saveProfile();
-                                              } else {
-                                                setState(() {
-                                                  isEditing = true;
-                                                });
-                                              }
-                                            },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
-                                        disabledBackgroundColor:
-                                            Colors.transparent,
-                                        shadowColor: Colors.transparent,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                      ),
-                                      child: isSaving
-                                          ? SizedBox(
-                                              width: 22,
-                                              height: 22,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2.4,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                      Color
-                                                    >(Colors.white),
-                                              ),
-                                            )
-                                          : Text(
-                                              isEditing
-                                                  ? 'Simpan Perubahan'
-                                                  : 'Edit Profil',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 12),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 54,
-                                  child: OutlinedButton(
-                                    onPressed: isEditing ? resetChanges : null,
-                                    style: OutlinedButton.styleFrom(
-                                      side: BorderSide(
-                                        color: kPrimaryGreen,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Hapus Perubahan',
-                                      style: TextStyle(
-                                        color: kPrimaryGreen,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          if (isEditing) buildActionButtons(),
                           SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
                             height: 48,
                             child: OutlinedButton.icon(
                               onPressed: deleteAccount,
-                              icon: Icon(Icons.delete_forever, color: kPrimaryGreen),
+                              icon: Icon(Icons.delete_forever, color: kPrimaryPink),
                               label: Text(
                                 'Hapus Akun',
-                                style: TextStyle(color: kPrimaryGreen, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: kPrimaryPink,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: kPrimaryGreen),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                side: BorderSide(color: Color(0xFFF3A8C3)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
                               ),
                             ),
                           ),
-                          if (lastChanges.isNotEmpty) ...[
-                            SizedBox(height: 28),
-                            Text(
-                              'Perubahan Terakhir',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2D1635),
-                              ),
-                            ),
-                            SizedBox(height: 14),
-                            ...lastChanges.entries.map(
-                              (entry) => buildChangeCard(entry.key, entry.value),
-                            ),
-                          ],
                         ],
                       ),
                     ),
